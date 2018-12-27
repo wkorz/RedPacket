@@ -1,32 +1,213 @@
+html,
+body {
+  background-color: #cd4144 !important;
+  padding: 0 !important;
+}
+
+.top {
+  height: 200px;
+  background: #fff url(./assets/bk.png) 0 0 no-repeat;
+  background-size: auto 200px;
+  position: relative;
+}
+
+.top .address {
+  position: absolute;
+  right: 30px;
+  width: 30%;
+  margin: 0;
+  line-height: 200px;
+  color: #cd4144;
+  font-weight: bold;
+  font-style: italic;
+}
+
+#gradient {
+  background: -webkit-linear-gradient(#fff, #cd4144);
+  /* Safari 5.1 - 6.0 */
+  background: -o-linear-gradient(#fff, #cd4144);
+  /* Opera 11.1 - 12.0 */
+  background: -moz-linear-gradient(#fff, #cd4144);
+  /* Firefox 3.6 - 15 */
+  background: linear-gradient(#fff, #cd4144);
+  /* 标准的语法 */
+}
+
+.layout {
+  padding: 30px;
+  padding-top: 60px;
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
+#root {}
+
+.ant-layout {
+  background-color: transparent !important;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.container {
+  background-color: transparent !important;
+  color: #fff !important;
+}
+
+.App-sider {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-right: 30px;
+}
+
+.ant-layout-sider-children {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.App-sider var {
+  font-weight: bold;
+  font-style: normal;
+  font-size: 32px;
+}
+
+.info-list {
+  width: 100%;
+  padding: 0 16px;
+  padding-top: 20px;
+}
+
+.info-list li {
+  width: 100%;
+  border-bottom: 4px solid #c37f42;
+  font-size: 22px;
+}
+
+.App-sider .send-img:hover p {
+  color: #cd4144;
+}
+
+.App-sider .send-img:hover {
+  box-shadow: 0 4px 12px 0 rgba(205, 65, 68, .5);
+}
+
+.App-sider .send-img {
+  background: url('assets/send.jpg') center center/cover no-repeat;
+  width: 240px;
+  height: 138px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.App-sider .send-img p {
+  font-size: 24px;
+  font-weight: bold;
+  color: #c37f42;
+  margin-left: 8px;
+  margin-top: 2px;
+}
+
+.App-content {
+  background-color: #fff !important;
+  min-height: 400px !important;
+}
+
+.p-list {}
+
+.p-list li {
+  display: inline-block;
+  margin-top: 20px;
+  margin-left: 20px;
+}
+
+.p-list .p-img {
+  background: url(./assets/p2.png) 0 0/contain no-repeat;
+  width: 80px;
+  height: 100px;
+}
+
+.App-footer {}
+
+.border-box {
+  border: 1px solid rgba(255, 255, 255, .4);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px 0 rgba(255, 255, 255, .2);
+}
+
+.ant-layout-sider {
+  background-color: #fff !important;
+  color: #cd4144 !important;
+}
+
+.send-modal {
+  width: 400px;
+}
+
+.send-modal .ant-modal-body {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  height: 500px;
+  background-color: #cd4144 !important;
+  border-radius: 8px;
 }
 
-.App-link {
-  color: #61dafb;
+.send-btn {
+  width: 320px;
+  line-height: 50px;
+  border-radius: 8px;
+  font-size: 26px;
+  text-align: center;
+  color: #504436;
+  background-color: #ebca95;
+  cursor: pointer;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.send-btn:first-child {
+  margin-bottom: 40px;
+}
+
+.ant-modal-content {
+  background-color: transparent !important;
+}
+
+.step2-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step2-box>* {
+  width: 320px !important;
+  margin-bottom: 20px !important;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-input-number-input-wrap,
+.ant-input-number-input {
+  font-size: 20px !important;
+  line-height: 40px;
+  height: 40px !important;
+}
+
+.ant-input:hover,
+.ant-input-number:hover {
+  border-color: #cd4144!important;
+}
+
+.ant-input-number:focus {
+  border-color: #cd4144!important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.ant-input-number-focused {
+  border-color: #cd4144!important;
+}
+::selection {
+  background: #cd4144!important;
 }
