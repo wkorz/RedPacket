@@ -30,6 +30,7 @@ class App extends Component {
             getAllpacket: [1, 2],
             sendModal: false,
             sendStep: 0,
+            detailModal: false,
         }
     }
 
@@ -153,13 +154,23 @@ class App extends Component {
         // this.getAllpacket()
     }
 
+    showDetail = async () => {
+        this.setState({
+            detailModal: true,
+        })
+    }
+    hideDetailModal = async () => {
+        this.setState({
+            detailModal: false,
+        })
+    }
+
     showModal = async () => {
         this.setState({
             sendModal: true,
             sendStep: 0,
         })
     }
-
     hideSendModal = async () => {
         this.setState({
             sendModal: false,
@@ -197,7 +208,7 @@ class App extends Component {
                     <Content className='App-content border-box container'>
                         <ul className='p-list'>
                             {this.state.getAllpacket.map((packet) => (
-                                <li>
+                                <li onClick={this.showDetail}>
                                     <div className='p-img'></div>
                                     <p></p>
                                 </li>
@@ -236,6 +247,23 @@ class App extends Component {
                                 <p className='send-btn' onClick={this.sendStep2}>塞钱进红包!</p>
                             </div>
                     }
+                </Modal>
+                <Modal
+                    visible={this.state.detailModal}
+                    onCancel={this.hideDetailModal}
+                    footer={null}
+                    className='detail-modal'
+                >
+                    <div>
+                        <p className='text'>恭喜发财，大吉大利</p>
+                        <p className='text left'>领取 1/10</p>
+                        <ul className='record-list'>
+                            <li>
+                                <p>TC1atPcgb3ChuoMMBS4BBSK3DoHwoRpU1a</p>
+                                <p className='value'>100.00</p>
+                            </li>
+                        </ul>
+                    </div>
                 </Modal>
             </div>
 

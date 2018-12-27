@@ -121,6 +121,7 @@ body {
   display: inline-block;
   margin-top: 20px;
   margin-left: 20px;
+  cursor: pointer;
 }
 
 .p-list .p-img {
@@ -142,10 +143,12 @@ body {
   color: #cd4144 !important;
 }
 
+.detail-modal,
 .send-modal {
   width: 400px;
 }
 
+.detail-modal .ant-modal-body,
 .send-modal .ant-modal-body {
   display: flex;
   flex-direction: column;
@@ -154,6 +157,39 @@ body {
   height: 500px;
   background-color: #cd4144 !important;
   border-radius: 8px;
+}
+
+.detail-modal .ant-modal-body {
+  justify-content: flex-start;
+}
+.detail-modal .text {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-size: 20px;
+}
+.detail-modal .text.left {
+  margin-top: 100px;
+  margin-left: 10px;
+  text-align: left;
+  font-size: 18px;
+  color: #fff;
+  font-weight: bold;
+}
+.detail-modal .record-list {
+  width: 520px;
+  border-top: 1px solid #c37f42;
+  padding: 0 10px;
+}
+.detail-modal .record-list li {
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
+  font-size: 16px;
+  line-height: 50px;
+}
+.detail-modal .record-list li p {
+  margin: 0;
 }
 
 .send-btn {
@@ -197,17 +233,18 @@ body {
 
 .ant-input:hover,
 .ant-input-number:hover {
-  border-color: #cd4144!important;
+  border-color: #cd4144 !important;
 }
 
 .ant-input-number:focus {
-  border-color: #cd4144!important;
+  border-color: #cd4144 !important;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
 
 .ant-input-number-focused {
-  border-color: #cd4144!important;
+  border-color: #cd4144 !important;
 }
+
 ::selection {
-  background: #cd4144!important;
+  background: #cd4144 !important;
 }
