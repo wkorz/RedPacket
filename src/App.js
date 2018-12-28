@@ -322,7 +322,10 @@ class App extends Component {
     render() {
         return (
             <div className="App">
-                <div className='top'><p className='address'>{this.state.address}</p></div>
+                <div className='top'>
+                    <div className='logo'>TRON GIFT</div>
+                    <p className='address'>{this.state.address}</p>
+                </div>
                 <Layout className='layout' id='gradient'>
                     <Sider width='260' className='App-sider border-box container'>
                         <ul className='info-list'>
