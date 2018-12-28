@@ -390,8 +390,8 @@ body {
 
 .logo {
   position: absolute;
-  left: 16px;
-  top: 16px;
+  left: 30px;
+  top: 30px;
   background: url(./assets/logo.png) 0 center/contain no-repeat;
   width: 430px;
   height: 120px;
