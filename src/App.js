@@ -36,6 +36,8 @@ class App extends Component {
             currentPacket: {
                 recordList: [],
             },
+            getUserCreate: [],
+            getUserGet: [],
         }
     }
 
@@ -55,32 +57,44 @@ class App extends Component {
             listget.push(JSON.parse(result_0[2][i]))
         }
         this.setState({ getUserKey: JSON.parse(result_0[0]) })
-        this.setState({ getUserCreate: listcreate.join(",") || 0 })
-        this.setState({ getUserGet: listget.join(",") || 0 })
+        this.setState({ getUserCreate: listcreate || [] })
+        this.setState({ getUserGet: listget || [] })
+        console.log(result_0, '>>>>getUser>>>>>')
     };
 
 
     //创建红包
     createPacket = async () => {
+        let crypto = this.state.sendStep == 2 ? 'true' : 'false',
+            random = this.state.send_packetType ? 'false' : 'true'
         let tron = 10 * 1000000;
-        let result_0 = await this.contract.createPacket(10, 2, "true", "true", "tron", "hello").send({
-            feeLimit: 100000000,
-            callValue: tron,
-            shouldPollResponse: true
-        })
+        let result_0 = await this.contract.createPacket(
+            this.state.send_sumMoney,
+            this.state.send_packetNum,
+            random,
+            crypto,
+            this.state.send_command,
+            this.state.send_content).send({
+                feeLimit: 1000000000,
+                callValue: tron,
+                shouldPollResponse: true
+            })
         console.log(result_0)
         this.setState({ createPacket: JSON.stringify(result_0) })
     };
 
     //抢红包
     getPacket = async () => {
-        let result_0 = await this.contract.getPacket(2, "tron").send()
-        console.log(result_0)
+        const { command, currentPacket } = this.state,
+            { id } = currentPacket
+        let result_0 = await this.contract.getPacket(id, command).send()
+        console.log(result_0, '<<<<<<<<<<<<<<<<<<拆红包<<<<<<<<<')
         this.setState({ getPacket: JSON.stringify(result_0) })
+
+        this.refresh()
     };
 
     //获取红包信息
-
     getPacketstruct = async (pId) => {
         let tron = 1000000
         let result_0 = await this.contract.getPacketstruct(pId).call()
@@ -152,7 +166,7 @@ class App extends Component {
             packet.push(i);
         }
         let result_1 = JSON.parse(await this.contract.getFinishkey().call())
-        console.log(result_1)
+        console.log(result_1, '>>>>>>>>allpacket>>>>>>')
         for (let i = 1; i < result_1; i++) {
             let j = JSON.parse(await this.contract.getFinishpacket(i).call())
             packet[j - 1] = -1;
@@ -160,23 +174,32 @@ class App extends Component {
         let Allpacket = []
         for (let index = 0; index < packet.length; index++) {
             let pId = packet[index]
+            if (pId < 0) continue;
             let p = await this.getPacketstruct(pId)
             p.id = pId
+            if (this.state.getUserGet.includes(pId)) {
+                p.checked = true
+            }
             p.recordList = []
             Allpacket.push(p)
         }
+        console.log(Allpacket)
         this.setState({ getAllpacket: Allpacket })
     };
 
     async componentDidMount() {
 
         let tronWeb = window.tronWeb;
-        // console.log('address', tronWeb.defaultAddress.base58)
         this.setState({ address: tronWeb.defaultAddress.base58 });
         let address = tronWeb.address.fromHex(artifact.networks['*'].address);
         // console.log(artifact.abi, artifact.networks['*'].address, address)
         this.contract = tronWeb.contract(artifact.abi, address);
         console.log(this.contract);
+
+        this.refresh()
+    }
+
+    refresh = async () => {
         this.getUser()
         this.getAllpacket()
     }
@@ -196,6 +219,7 @@ class App extends Component {
         await this.getPacketRecords(packet)
         console.log(packet.recordList)
         this.setState({
+            command: '',
             currentPacket: packet,
             detailModal: true,
         })
@@ -207,6 +231,7 @@ class App extends Component {
     }
 
     showModal = async () => {
+        this.initParams()
         this.setState({
             sendModal: true,
             sendStep: 0,
@@ -228,6 +253,69 @@ class App extends Component {
         })
     }
 
+    handleCommand = async (e) => {
+        let value = e.target.value
+        this.setState({
+            command: value,
+        })
+    }
+
+    handleSumMoney = async (value) => {
+        this.setState({
+            send_sumMoney: value,
+        })
+    }
+
+    handlePacketNum = async (value) => {
+        this.setState({
+            send_packetNum: value,
+        })
+    }
+
+    handleContent = async (e) => {
+        let value = e.target.value
+        this.setState({
+            send_content: value,
+        })
+    }
+
+    handleSendCommand = async (e) => {
+        let value = e.target.value
+        this.setState({
+            send_command: value,
+        })
+    }
+
+    handlePacketType = async (checked) => {
+        this.setState({
+            send_packetType: checked,
+        })
+    }
+
+    initParams = async () => {
+        this.setState({
+            send_command: '',
+            send_content: '恭喜发财，大吉大利!',
+            send_packetNum: 1,
+            send_packetType: true,
+            send_sumMoney: 10,
+        })
+    }
+
+    sendReal = async () => {
+        await this.createPacket()
+        this.refresh()
+
+        let crypto = this.state.sendStep == 2 ? 'true' : 'false',
+            random = this.state.send_packetType ? 'false' : 'true'
+        console.log(this.state.send_sumMoney,
+            this.state.send_packetNum,
+            random,
+            crypto,
+            this.state.send_command,
+            this.state.send_content, '>>>>>>>>>>>>>>>>>>>>')
+    }
+
 
 
     render() {
@@ -237,8 +325,8 @@ class App extends Component {
                 <Layout className='layout' id='gradient'>
                     <Sider width='260' className='App-sider border-box container'>
                         <ul className='info-list'>
-                            <li>我发出的 <var>{this.state.getUserCreate}</var> 个</li>
-                            <li>我收到的 <var>{this.state.getUserGet}</var> 个</li>
+                            <li>我发出的 <var>{this.state.getUserCreate.length}</var> 个</li>
+                            <li>我收到的 <var>{this.state.getUserGet.length}</var> 个</li>
                         </ul>
                         <div className='send-box'>
                             <div className='send-img' onClick={this.showModal}>
@@ -249,16 +337,20 @@ class App extends Component {
                     <Content className='App-content border-box container'>
                         <ul className='p-list'>
                             {this.state.getAllpacket.map((packet) => (
-                                <li onClick={this.showDetail.bind(this, packet)}>
-                                    <div className='p-img'></div>
+                                <li onClick={this.showDetail.bind(this, packet)} key={packet.id}>
+                                    <div className={packet.checked ? 'checked p-img' : 'p-img'}></div>
                                     <p className='text'>{packet.getPacketstructContent}</p>
-                                    {packet.getPacketstructCrypto ? <p className='text tip'>【口令红包】</p> : null}
+                                    {packet.getPacketstructCrypto == 'true' ? <p className='text tip'>【口令红包】</p> : null}
                                 </li>
                             ))}
                         </ul>
                     </Content>
-                    {/* <Footer className='App-footer border-box container'>footer</Footer> */}
                 </Layout>
+                <Footer className='App-footer border-box container'>
+                    <p>All rights reserved.</p>
+                    <p>© Copyright 2018  renwuming.com</p>
+                    <p>Powered by chain-team</p>
+                </Footer>
                 <Modal
                     visible={this.state.sendModal}
                     onCancel={this.hideSendModal}
@@ -273,25 +365,31 @@ class App extends Component {
                             <div className='step2-box'>
                                 <InputNumber
                                     placeholder='总金额'
-                                    precision='2'
-                                    min='1'
+                                    precision={2}
+                                    min={10}
+                                    max={99999}
+                                    value={this.state.send_sumMoney} onChange={this.handleSumMoney.bind(this)}
                                 ></InputNumber>
                                 <InputNumber
                                     placeholder='红包个数'
-                                    precision='0'
-                                    min='1'
-                                    max='9999'
+                                    precision={0}
+                                    min={1}
+                                    max={9999}
+                                    value={this.state.send_packetNum} onChange={this.handlePacketNum.bind(this)}
                                 ></InputNumber>
                                 <TextArea
                                     placeholder='祝福语'
                                     autosize={{ minRows: 4, maxRows: 4 }}
+                                    value={this.state.send_content} onChange={this.handleContent.bind(this)}
                                 ></TextArea>
                                 {this.state.sendStep == 2 ?
-                                    <Input placeholder='请输入口令'></Input> : null}
+                                    <Input placeholder='请输入口令'
+                                        value={this.state.send_command} onChange={this.handleSendCommand.bind(this)}
+                                    ></Input> : null}
                                 <div className='switch-box'>
-                                    <Switch defaultChecked checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />}></Switch><span className='switch-text'>拼手气</span>
+                                    <Switch checked={this.state.send_packetType} checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} onChange={this.handlePacketType}></Switch><span className='switch-text'>拼手气</span>
                                 </div>
-                                <p className='send-btn' onClick={this.sendStep2}>塞钱进红包!</p>
+                                <p className='send-btn' onClick={this.sendReal}>塞钱进红包!</p>
                             </div>
                     }
                 </Modal>
@@ -299,23 +397,25 @@ class App extends Component {
                     visible={this.state.detailModal}
                     onCancel={this.hideDetailModal}
                     footer={null}
-                    className='detail-modal'
+                    className={this.state.currentPacket.getPacketstructCrypto == 'true' && !this.state.currentPacket.checked ? 'red detail-modal' : 'detail-modal'}
                 >
                     {
-                        this.state.currentPacket.getPacketstructCrypto ?
+                        this.state.currentPacket.getPacketstructCrypto == 'true' && !this.state.currentPacket.checked ?
                             <div>
-                                <Input placeholder='请输入口令' className='command-input'></Input>
-                                <p className='send-btn' onClick={this.sendStep2}>拆红包!</p>
+                                <Input placeholder='请输入口令' className='command-input' value={this.state.command} onChange={this.handleCommand.bind(this)}></Input>
+                                <p className='send-btn' onClick={this.getPacket}>拆红包!</p>
                             </div>
                             :
                             <div>
-                                <p className='text'>{this.state.currentPacket.getPacketstructContent}</p>
-                                <p className='text time'>{this.state.currentPacket.getPacketstructTime}</p>
-                                <p className='text left'>领取 {this.state.currentPacket.getPacketstructCount}/{this.state.currentPacket.getPacketstructAllcount}, 共<var>{this.state.currentPacket.getPacketstructMoney}</var> TRX</p>
+                                <div className='top2'>
+                                    <p className='text'>{this.state.currentPacket.getPacketstructContent}</p>
+                                    <p className='text time'>{this.state.currentPacket.getPacketstructTime}</p>
+                                    <p className='text left'>领取 {this.state.currentPacket.getPacketstructCount}/{this.state.currentPacket.getPacketstructAllcount}, 共<var>{this.state.currentPacket.getPacketstructMoney}</var> TRX</p>
+                                </div>
                                 <ul className='record-list'>
                                     {
                                         this.state.currentPacket.recordList.map(item => (
-                                            <li>
+                                            <li key={item.getRecordOwner}>
                                                 <div className='left'>
                                                     <p className='addr'>{item.getRecordOwner}</p>
                                                     <p className='time'>{item.getRecordTime}</p>

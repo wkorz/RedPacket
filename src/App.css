@@ -40,9 +40,15 @@ body {
 
 .App {
   text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-#root {}
+#root {
+  height: 100%;
+}
 
 .ant-layout {
   background-color: transparent !important;
@@ -131,6 +137,7 @@ body {
   text-overflow: hidden;
   flex-shrink: 0;
 }
+
 .p-list .text {
   color: #cd4144;
   font-weight: bold;
@@ -141,17 +148,33 @@ body {
   white-space: nowrap;
   overflow: hidden;
 }
+
 .p-list .text.tip {
   color: #ebca95;
 }
 
 .p-list .p-img {
-  background: url(./assets/p2.png) 0 0/contain no-repeat;
+  background: url(./assets/p.png) 0 0/contain no-repeat;
   width: 80px;
   height: 90px;
 }
 
-.App-footer {}
+.p-list .p-img.checked {
+  background-image: url(./assets/p2.png);
+}
+
+.App-footer {
+  margin: 0 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 0!important;
+  box-shadow: none!important;
+}
+.App-footer p {
+  margin: 0;
+}
 
 .border-box {
   border: 1px solid rgba(255, 255, 255, .4);
@@ -183,6 +206,22 @@ body {
 .detail-modal .ant-modal-body {
   height: auto;
   min-height: 500px;
+  padding-top: 0;
+  padding-bottom: 0;
+  background-color: #fff !important;
+}
+
+.detail-modal.red .ant-modal-body {
+  background-color: #cd4144 !important;
+}
+
+.detail-modal .ant-modal-body .top2 {
+  background-color: #cd4144;
+  padding-top: 24px;
+  padding-bottom: 4px;
+  border-radius: 8px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
 .detail-modal .ant-modal-body {
@@ -194,6 +233,7 @@ body {
   text-align: center;
   color: #fff;
   font-size: 22px;
+  margin-bottom: 10px;
 }
 
 .detail-modal .text.time {
@@ -201,8 +241,9 @@ body {
 }
 
 .detail-modal .text.left {
-  margin-top: 60px;
+  margin-top: 30px;
   margin-left: 10px;
+  margin-bottom: 0;
   text-align: left;
   font-size: 18px;
   color: #fff;
@@ -217,43 +258,56 @@ body {
 
 .detail-modal .record-list {
   width: 520px;
-  border-top: 3px solid #c37f42;
+  margin-top: 10px;
+  margin-bottom: 0;
+  /* border-top: 3px solid #c37f42; */
 }
 
 .detail-modal .record-list li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #fff;
+  color: #666;
   font-size: 16px;
   padding: 6px 10px;
-  border-bottom: 1px solid rgba(255,255,255,.3);
+  border-bottom: 1px solid rgba(0, 0, 0, .3);
+}
+
+.detail-modal .record-list li:last-of-type {
+  border: 0;
 }
 
 .detail-modal .record-list li p {
   margin: 0;
 }
+
 .detail-modal .record-list li .addr {
   font-weight: bold;
   font-size: 16px;
   width: 80%;
+  color: #666;
 }
+
 .detail-modal .record-list li .left {
   display: flex;
   flex-direction: column;
   width: 80%;
 }
+
 .detail-modal .record-list li .time {
-  margin: 4px 0;
+  margin-top: 4px;
+  color: #666;
 }
+
 .detail-modal .record-list li .value {
   font-size: 20px;
   font-weight: bold;
+  color: #666;
 }
 
 .command-input {
-  margin-top: 150px!important;
-  margin-bottom: 20px!important;
+  margin-top: 150px !important;
+  margin-bottom: 20px !important;
 }
 
 .send-btn {
@@ -317,9 +371,11 @@ body {
   display: flex;
   align-items: center;
 }
+
 .switch-box .ant-switch-checked {
   background-color: #ebca95;
 }
+
 .switch-text {
   margin-left: 10px;
   color: #ebca95;
