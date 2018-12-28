@@ -115,19 +115,40 @@ body {
   min-height: 400px !important;
 }
 
-.p-list {}
+.p-list {
+  display: flex;
+  padding: 0 20px;
+  flex-wrap: wrap;
+}
 
 .p-list li {
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 20px;
-  margin-left: 20px;
+  width: 160px;
   cursor: pointer;
+  text-overflow: hidden;
+  flex-shrink: 0;
+}
+.p-list .text {
+  color: #cd4144;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+  max-width: 140px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.p-list .text.tip {
+  color: #ebca95;
 }
 
 .p-list .p-img {
   background: url(./assets/p2.png) 0 0/contain no-repeat;
   width: 80px;
-  height: 100px;
+  height: 90px;
 }
 
 .App-footer {}
@@ -160,36 +181,79 @@ body {
 }
 
 .detail-modal .ant-modal-body {
+  height: auto;
+  min-height: 500px;
+}
+
+.detail-modal .ant-modal-body {
   justify-content: flex-start;
 }
+
 .detail-modal .text {
   width: 100%;
   text-align: center;
   color: #fff;
-  font-size: 20px;
+  font-size: 22px;
 }
+
+.detail-modal .text.time {
+  font-size: 16px;
+}
+
 .detail-modal .text.left {
-  margin-top: 100px;
+  margin-top: 60px;
   margin-left: 10px;
   text-align: left;
   font-size: 18px;
   color: #fff;
   font-weight: bold;
 }
+
+.detail-modal .text.left var {
+  font-size: 26px;
+  font-style: normal;
+  font-weight: bold;
+}
+
 .detail-modal .record-list {
   width: 520px;
-  border-top: 1px solid #c37f42;
-  padding: 0 10px;
+  border-top: 3px solid #c37f42;
 }
+
 .detail-modal .record-list li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   color: #fff;
   font-size: 16px;
-  line-height: 50px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.3);
 }
+
 .detail-modal .record-list li p {
   margin: 0;
+}
+.detail-modal .record-list li .addr {
+  font-weight: bold;
+  font-size: 16px;
+  width: 80%;
+}
+.detail-modal .record-list li .left {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+}
+.detail-modal .record-list li .time {
+  margin: 4px 0;
+}
+.detail-modal .record-list li .value {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.command-input {
+  margin-top: 150px!important;
+  margin-bottom: 20px!important;
 }
 
 .send-btn {
@@ -247,4 +311,17 @@ body {
 
 ::selection {
   background: #cd4144 !important;
+}
+
+.switch-box {
+  display: flex;
+  align-items: center;
+}
+.switch-box .ant-switch-checked {
+  background-color: #ebca95;
+}
+.switch-text {
+  margin-left: 10px;
+  color: #ebca95;
+  font-weight: bold;
 }

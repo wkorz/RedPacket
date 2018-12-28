@@ -3,8 +3,9 @@ import './App.css';
 import './reset.css';
 import * as artifact from './contracts/RedPacket'
 
+import moment from 'moment'
 import 'antd/dist/antd.css'
-import { Modal, Button, Layout, Input, InputNumber } from 'antd'
+import { Modal, Button, Layout, Input, InputNumber, Switch, Icon } from 'antd'
 const {
     Header, Footer, Sider, Content,
 } = Layout
@@ -27,10 +28,14 @@ class App extends Component {
             result_0: null,
             result_1: null,
             result_2: null,
-            getAllpacket: [1, 2],
+            getAllpacket: [],
             sendModal: false,
             sendStep: 0,
             detailModal: false,
+            getPacketstructRecords: [],
+            currentPacket: {
+                recordList: [],
+            },
         }
     }
 
@@ -76,32 +81,46 @@ class App extends Component {
 
     //获取红包信息
 
-    getPacketstruct = async () => {
+    getPacketstruct = async (pId) => {
         let tron = 1000000
-        let result_0 = await this.contract.getPacketstruct(1).call()
-        console.log(result_0)
-        this.setState({ getPacketstructAddress: result_0[1] })
-        this.setState({ getPacketstructTime: JSON.parse(result_0[2]) })
-        this.setState({ getPacketstructMoney: JSON.parse(result_0[3]) / tron })
-        this.setState({ getPacketstructAllcount: JSON.parse(result_0[4]) })
-        this.setState({ getPacketstructCount: JSON.parse(result_0[5]) })
-        this.setState({ getPacketstructAve: String(result_0[6]) })
-        this.setState({ getPacketstructCrypto: String(result_0[7]) })
-        this.setState({ getPacketstructFinish: String(result_0[8]) })
-        // this.setState({getPacketstructRecords:JSON.parse(result_0[9])})
-        this.setState({ getPacketstructBalance: JSON.parse(result_0[10]) / tron })
-        this.setState({ getPacketstructContent: result_0[11] })
+        let result_0 = await this.contract.getPacketstruct(pId).call()
+        const getPacketstructAddress = result_0[1]
+        const getPacketstructTime = moment(JSON.parse(result_0[2])).format('YYYY-MM-DD HH:mm:ss')
+        const getPacketstructMoney = JSON.parse(result_0[3]) / tron
+        const getPacketstructAllcount = JSON.parse(result_0[4])
+        const getPacketstructCount = JSON.parse(result_0[5])
+        const getPacketstructAve = String(result_0[6])
+        const getPacketstructCrypto = String(result_0[7])
+        const getPacketstructFinish = String(result_0[8])
+        const getPacketstructRecords = result_0[9]
+        const getPacketstructBalance = JSON.parse(result_0[10]) / tron
+        const getPacketstructContent = result_0[11]
+        return {
+            getPacketstructAddress,
+            getPacketstructTime,
+            getPacketstructMoney,
+            getPacketstructAllcount,
+            getPacketstructCount,
+            getPacketstructAve,
+            getPacketstructCrypto,
+            getPacketstructFinish,
+            getPacketstructRecords,
+            getPacketstructBalance,
+            getPacketstructContent,
+        }
     };
 
     //获取记录信息
-    getRecord = async () => {
+    getRecord = async (id) => {
         let tron = 1000000
-        let result_0 = await this.contract.getRecord(1).call()
+        let result_0 = await this.contract.getRecord(id).call()
         console.log(result_0)
-        this.setState({ getRecordId: JSON.parse(result_0[0]) })
-        this.setState({ getRecordOwner: result_0[1] })
-        this.setState({ getRecordTime: JSON.parse(result_0[2]) })
-        this.setState({ getRecordMoney: (JSON.parse(result_0[3]) / tron) })
+        return {
+            getRecordId: JSON.parse(result_0[0]),
+            getRecordOwner: result_0[1],
+            getRecordTime: moment(JSON.parse(result_0[2])).format('MM-DD HH:mm'),
+            getRecordMoney: (JSON.parse(result_0[3]) / tron).toFixed(2),
+        }
     };
 
     //获取所有红包key
@@ -138,7 +157,15 @@ class App extends Component {
             let j = JSON.parse(await this.contract.getFinishpacket(i).call())
             packet[j - 1] = -1;
         }
-        this.setState({ getAllpacket: packet })
+        let Allpacket = []
+        for (let index = 0; index < packet.length; index++) {
+            let pId = packet[index]
+            let p = await this.getPacketstruct(pId)
+            p.id = pId
+            p.recordList = []
+            Allpacket.push(p)
+        }
+        this.setState({ getAllpacket: Allpacket })
     };
 
     async componentDidMount() {
@@ -151,11 +178,25 @@ class App extends Component {
         this.contract = tronWeb.contract(artifact.abi, address);
         console.log(this.contract);
         this.getUser()
-        // this.getAllpacket()
+        this.getAllpacket()
     }
 
-    showDetail = async () => {
+    getPacketRecords = async (packet) => {
+        const { getPacketstructRecords } = packet
+        let reslist = []
+        for (let index = 0; index < getPacketstructRecords.length; index++) {
+            const id = getPacketstructRecords[index]
+            const res = await this.getRecord(id)
+            reslist.push(res)
+        }
+        packet.recordList = reslist
+        return reslist
+    }
+    showDetail = async (packet) => {
+        await this.getPacketRecords(packet)
+        console.log(packet.recordList)
         this.setState({
+            currentPacket: packet,
             detailModal: true,
         })
     }
@@ -208,9 +249,10 @@ class App extends Component {
                     <Content className='App-content border-box container'>
                         <ul className='p-list'>
                             {this.state.getAllpacket.map((packet) => (
-                                <li onClick={this.showDetail}>
+                                <li onClick={this.showDetail.bind(this, packet)}>
                                     <div className='p-img'></div>
-                                    <p></p>
+                                    <p className='text'>{packet.getPacketstructContent}</p>
+                                    {packet.getPacketstructCrypto ? <p className='text tip'>【口令红包】</p> : null}
                                 </li>
                             ))}
                         </ul>
@@ -244,6 +286,11 @@ class App extends Component {
                                     placeholder='祝福语'
                                     autosize={{ minRows: 4, maxRows: 4 }}
                                 ></TextArea>
+                                {this.state.sendStep == 2 ?
+                                    <Input placeholder='请输入口令'></Input> : null}
+                                <div className='switch-box'>
+                                    <Switch defaultChecked checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />}></Switch><span className='switch-text'>拼手气</span>
+                                </div>
                                 <p className='send-btn' onClick={this.sendStep2}>塞钱进红包!</p>
                             </div>
                     }
@@ -254,16 +301,32 @@ class App extends Component {
                     footer={null}
                     className='detail-modal'
                 >
-                    <div>
-                        <p className='text'>恭喜发财，大吉大利</p>
-                        <p className='text left'>领取 1/10</p>
-                        <ul className='record-list'>
-                            <li>
-                                <p>TC1atPcgb3ChuoMMBS4BBSK3DoHwoRpU1a</p>
-                                <p className='value'>100.00</p>
-                            </li>
-                        </ul>
-                    </div>
+                    {
+                        this.state.currentPacket.getPacketstructCrypto ?
+                            <div>
+                                <Input placeholder='请输入口令' className='command-input'></Input>
+                                <p className='send-btn' onClick={this.sendStep2}>拆红包!</p>
+                            </div>
+                            :
+                            <div>
+                                <p className='text'>{this.state.currentPacket.getPacketstructContent}</p>
+                                <p className='text time'>{this.state.currentPacket.getPacketstructTime}</p>
+                                <p className='text left'>领取 {this.state.currentPacket.getPacketstructCount}/{this.state.currentPacket.getPacketstructAllcount}, 共<var>{this.state.currentPacket.getPacketstructMoney}</var> TRX</p>
+                                <ul className='record-list'>
+                                    {
+                                        this.state.currentPacket.recordList.map(item => (
+                                            <li>
+                                                <div className='left'>
+                                                    <p className='addr'>{item.getRecordOwner}</p>
+                                                    <p className='time'>{item.getRecordTime}</p>
+                                                </div>
+                                                <p className='value'>{item.getRecordMoney} TRX</p>
+                                            </li>
+                                        ))
+                                    }
+                                </ul>
+                            </div>
+                    }
                 </Modal>
             </div>
 
