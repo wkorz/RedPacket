@@ -5,7 +5,7 @@ import * as artifact from './contracts/RedPacket'
 
 import moment from 'moment'
 import 'antd/dist/antd.css'
-import { Modal, Button, Layout, Input, InputNumber, Switch, Icon } from 'antd'
+import { Modal, Button, Layout, Input, InputNumber, Switch, Icon, message } from 'antd'
 const {
     Header, Footer, Sider, Content,
 } = Layout
@@ -65,8 +65,8 @@ class App extends Component {
 
     //创建红包
     createPacket = async () => {
-        let crypto = this.state.sendStep == 2 ? 'true' : 'false',
-            random = this.state.send_packetType ? 'false' : 'true'
+        let crypto = this.state.sendStep == 2 ? true : false,
+            random = this.state.send_packetType ? false : true
         let tron = 10 * 1000000;
         let result_0 = await this.contract.createPacket(
             this.state.send_sumMoney,
@@ -200,6 +200,7 @@ class App extends Component {
     }
 
     refresh = async () => {
+        this.initParams()
         this.getUser()
         this.getAllpacket()
     }
@@ -294,6 +295,8 @@ class App extends Component {
 
     initParams = async () => {
         this.setState({
+            sendModal: false,
+            detailModal: false,
             send_command: '',
             send_content: '恭喜发财，大吉大利!',
             send_packetNum: 1,
@@ -303,17 +306,15 @@ class App extends Component {
     }
 
     sendReal = async () => {
+        let crypto = this.state.sendStep == 2 ? true : false,
+            random = this.state.send_packetType ? false : true
+        if(this.state.sendStep == 2 && !this.state.send_command) {
+            message.warning('请填写口令!', 2)
+            return
+        }
         await this.createPacket()
         this.refresh()
 
-        let crypto = this.state.sendStep == 2 ? 'true' : 'false',
-            random = this.state.send_packetType ? 'false' : 'true'
-        console.log(this.state.send_sumMoney,
-            this.state.send_packetNum,
-            random,
-            crypto,
-            this.state.send_command,
-            this.state.send_content, '>>>>>>>>>>>>>>>>>>>>')
     }
 
 
@@ -397,12 +398,12 @@ class App extends Component {
                     visible={this.state.detailModal}
                     onCancel={this.hideDetailModal}
                     footer={null}
-                    className={this.state.currentPacket.getPacketstructCrypto == 'true' && !this.state.currentPacket.checked ? 'red detail-modal' : 'detail-modal'}
+                    className={!this.state.currentPacket.checked ? 'red detail-modal' : 'detail-modal'}
                 >
                     {
-                        this.state.currentPacket.getPacketstructCrypto == 'true' && !this.state.currentPacket.checked ?
-                            <div>
-                                <Input placeholder='请输入口令' className='command-input' value={this.state.command} onChange={this.handleCommand.bind(this)}></Input>
+                        !this.state.currentPacket.checked ?
+                            <div className='mid-box'>
+                                {this.state.currentPacket.getPacketstructCrypto == 'true' ? <Input placeholder='请输入口令' className='command-input' value={this.state.command} onChange={this.handleCommand.bind(this)}></Input> : null}
                                 <p className='send-btn' onClick={this.getPacket}>拆红包!</p>
                             </div>
                             :
