@@ -119,5 +119,6 @@
   "devDependencies": {
     "source-map-loader": "^0.2.4",
     "tronbox": "^2.2.0"
-  }
+  },
+  "homepage": "."
 }

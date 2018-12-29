@@ -17,6 +17,8 @@ class App extends Component {
     constructor(props) {
         super(props);
 
+        this.listenSuccess()
+
         window.tronWeb.setDefaultBlock('latest');
 
         this.contract = null;
@@ -41,6 +43,25 @@ class App extends Component {
         }
     }
 
+    async listenSuccess() {
+        let contractInstance = await window.tronWeb.contract().at("41c1d236d79c56f666c843bd2d08f0c38e0adccc68");
+        contractInstance["createPacketSuccess"]().watch((err, res) => {
+            const successId = res["result"][""]
+            this.setState({
+                successPId: successId,
+            })
+            this.refresh()
+        });
+
+        contractInstance["getPacketSuccess"]().watch((err, res) => {
+            const successId = res["result"][""]
+            this.setState({
+                successGetPId: successId,
+            })
+            this.refresh()
+        });
+    }
+
     //获取未领取的红包列表
 
     //我的记录
@@ -59,12 +80,12 @@ class App extends Component {
         this.setState({ getUserKey: JSON.parse(result_0[0]) })
         this.setState({ getUserCreate: listcreate || [] })
         this.setState({ getUserGet: listget || [] })
-        console.log(result_0, '>>>>getUser>>>>>')
     };
 
 
     //创建红包
     createPacket = async () => {
+
         let crypto = this.state.sendStep == 2 ? true : false,
             random = this.state.send_packetType ? false : true
         let tron = 10 * 1000000;
@@ -79,19 +100,28 @@ class App extends Component {
                 callValue: tron,
                 shouldPollResponse: true
             })
-        console.log(result_0)
         this.setState({ createPacket: JSON.stringify(result_0) })
     };
 
     //抢红包
     getPacket = async () => {
-        const { command, currentPacket } = this.state,
-            { id } = currentPacket
-        let result_0 = await this.contract.getPacket(id, command).send()
-        console.log(result_0, '<<<<<<<<<<<<<<<<<<拆红包<<<<<<<<<')
-        this.setState({ getPacket: JSON.stringify(result_0) })
+        this.setState({
+            successGetPId: -1,
+        })
 
-        this.refresh()
+        try {
+            const { command, currentPacket } = this.state,
+                { id } = currentPacket
+            let result_0 = await this.contract.getPacket(id, command).send()
+            // console.log(result_0, '<<<<<<<<<<<<<<<<<<拆红包<<<<<<<<<')
+            this.setState({ getPacket: JSON.stringify(result_0) })
+        } catch (e) {
+            message.warning('拆红包失败!', 2)
+            return
+        }
+        if (this.state.successGetPId < 0) { // 若创建红包标识未改变
+            message.warning('拆红包失败!', 2)
+        }
     };
 
     //获取红包信息
@@ -128,7 +158,7 @@ class App extends Component {
     getRecord = async (id) => {
         let tron = 1000000
         let result_0 = await this.contract.getRecord(id).call()
-        console.log(result_0)
+        // console.log(result_0)
         return {
             getRecordId: JSON.parse(result_0[0]),
             getRecordOwner: result_0[1],
@@ -140,7 +170,7 @@ class App extends Component {
     //获取所有红包key
     getPacketkey = async () => {
         let result_0 = await this.contract.getPacketkey().call()
-        console.log(result_0)
+        // console.log(result_0)
         this.setState({ getPacketkey: JSON.parse(result_0) })
     };
 
@@ -148,7 +178,7 @@ class App extends Component {
     //获取已抢光的红包key
     getFinishkey = async () => {
         let result_0 = await this.contract.getFinishkey().call()
-        console.log(result_0)
+        // console.log(result_0)
         let finishpacket = [];
         for (let i = 1; i < result_0; i++) {
             let packet = JSON.parse(await this.contract.getFinishpacket(i).call())
@@ -160,13 +190,13 @@ class App extends Component {
     //获取有效的红包key
     getAllpacket = async () => {
         let result_0 = JSON.parse(await this.contract.getPacketkey().call())
-        console.log(result_0)
+        // console.log(result_0)
         let packet = [];
         for (let i = 1; i < result_0; i++) {
             packet.push(i);
         }
         let result_1 = JSON.parse(await this.contract.getFinishkey().call())
-        console.log(result_1, '>>>>>>>>allpacket>>>>>>')
+        // console.log(result_1, '>>>>>>>>allpacket>>>>>>')
         for (let i = 1; i < result_1; i++) {
             let j = JSON.parse(await this.contract.getFinishpacket(i).call())
             packet[j - 1] = -1;
@@ -183,7 +213,7 @@ class App extends Component {
             p.recordList = []
             Allpacket.push(p)
         }
-        console.log(Allpacket)
+        // console.log(Allpacket)
         this.setState({ getAllpacket: Allpacket })
     };
 
@@ -194,7 +224,7 @@ class App extends Component {
         let address = tronWeb.address.fromHex(artifact.networks['*'].address);
         // console.log(artifact.abi, artifact.networks['*'].address, address)
         this.contract = tronWeb.contract(artifact.abi, address);
-        console.log(this.contract);
+        // console.log(this.contract);
 
         this.refresh()
     }
@@ -218,7 +248,7 @@ class App extends Component {
     }
     showDetail = async (packet) => {
         await this.getPacketRecords(packet)
-        console.log(packet.recordList)
+        // console.log(packet.recordList)
         this.setState({
             command: '',
             currentPacket: packet,
@@ -306,15 +336,23 @@ class App extends Component {
     }
 
     sendReal = async () => {
-        let crypto = this.state.sendStep == 2 ? true : false,
-            random = this.state.send_packetType ? false : true
-        if(this.state.sendStep == 2 && !this.state.send_command) {
+        this.setState({ // 标识创建红包未成功
+            successPId: -1,
+        })
+        // console.log(this.state.successPId)
+        if (this.state.sendStep == 2 && !this.state.send_command) {
             message.warning('请填写口令!', 2)
             return
         }
-        await this.createPacket()
-        this.refresh()
-
+        try {
+            await this.createPacket()
+        } catch (e) {
+            message.warning('发红包失败!', 2)
+            return
+        }
+        if (this.state.successPId < 0) { // 若创建红包标识未改变
+            message.warning('发红包失败!', 2)
+        }
     }
 
 
