@@ -88,7 +88,7 @@ class App extends Component {
 
         let crypto = this.state.sendStep == 2 ? true : false,
             random = this.state.send_packetType ? false : true
-        let tron = 10 * 1000000;
+        let tron = this.state.send_sumMoney * 1000000;
         let result_0 = await this.contract.createPacket(
             this.state.send_sumMoney,
             this.state.send_packetNum,
